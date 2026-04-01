@@ -26,6 +26,7 @@ import {
   useFinanceStore,
 } from "@/store/useStore"
 import { AddTransactionDialog } from "@/components/table/AddTransactionDialog"
+import { EditTransactionRowButton } from "@/components/table/EditTransactionDialog"
 import { cn } from "@/lib/utils"
 
 const formatMoney = (n: number) =>
@@ -35,7 +36,7 @@ const formatMoney = (n: number) =>
   }).format(n)
 
 export function TransactionsTable() {
-  const role = useFinanceStore((s) => s.role)
+  const isAdmin = useFinanceStore((s) => s.role === "admin")
   const typeFilter = useFinanceStore((s) => s.typeFilter)
   const setTypeFilter = useFinanceStore((s) => s.setTypeFilter)
   const search = useFinanceStore((s) => s.search)
@@ -88,7 +89,7 @@ export function TransactionsTable() {
             <Download className="size-4" />
             Export CSV
           </Button>
-          {role === "admin" && <AddTransactionDialog />}
+          {isAdmin && <AddTransactionDialog />}
         </div>
       </div>
 
@@ -131,12 +132,18 @@ export function TransactionsTable() {
                 </TableHead>
                 <TableHead>Category</TableHead>
                 <TableHead className="text-right">Type</TableHead>
+                {isAdmin && (
+                  <TableHead className="w-[72px] text-right">Actions</TableHead>
+                )}
               </TableRow>
             </TableHeader>
             <TableBody>
               {rows.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={4} className="h-32 text-center">
+                  <TableCell
+                    colSpan={isAdmin ? 5 : 4}
+                    className="h-32 text-center"
+                  >
                     <p className="text-sm text-muted-foreground">
                       No transactions match your filters.
                     </p>
@@ -181,6 +188,11 @@ export function TransactionsTable() {
                         {t.type}
                       </Badge>
                     </TableCell>
+                    {isAdmin && (
+                      <TableCell className="text-right">
+                        <EditTransactionRowButton transaction={t} />
+                      </TableCell>
+                    )}
                   </TableRow>
                 ))
               )}

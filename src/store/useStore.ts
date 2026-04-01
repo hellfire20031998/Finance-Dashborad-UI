@@ -24,6 +24,10 @@ interface FinanceState {
   setSearch: (s: string) => void
   setSort: (by: "date" | "amount") => void
   addTransaction: (t: Omit<Transaction, "id">) => Promise<void>
+  updateTransaction: (
+    id: string,
+    patch: Omit<Transaction, "id">,
+  ) => Promise<void>
 }
 
 function parseRole(raw: string | null): UserRole {
@@ -72,6 +76,14 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
   addTransaction: async (payload) => {
     const transaction: Transaction = { ...payload, id: newId() }
     const transactions = [transaction, ...get().transactions]
+    set({ transactions })
+    await syncPersist(transactions)
+  },
+
+  updateTransaction: async (id, patch) => {
+    const transactions = get().transactions.map((t) =>
+      t.id === id ? { ...t, ...patch } : t,
+    )
     set({ transactions })
     await syncPersist(transactions)
   },
