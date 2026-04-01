@@ -1,7 +1,6 @@
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts"
 import type { CategorySpend } from "@/lib/metrics"
 import { getCategoryColor } from "@/lib/data"
-import { CategorySpendBars } from "@/components/charts/CategorySpendBars"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 
@@ -52,7 +51,8 @@ export function SpendingPieChart({ data, loading }: Props) {
         <CardTitle>Spending by category</CardTitle>
         <CardDescription>Share of total expenses per category.</CardDescription>
       </CardHeader>
-      <CardContent className="h-[300px]">
+      <CardContent className="space-y-2">
+        <div className="h-[280px] w-full min-w-0">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
@@ -87,7 +87,8 @@ export function SpendingPieChart({ data, loading }: Props) {
             />
           </PieChart>
         </ResponsiveContainer>
-        <ul className="mt-2 flex flex-wrap justify-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+        </div>
+        <ul className="flex flex-wrap justify-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
           {data.map((d) => (
             <li key={d.category} className="flex items-center gap-1.5">
               <span
@@ -98,7 +99,6 @@ export function SpendingPieChart({ data, loading }: Props) {
             </li>
           ))}
         </ul>
-        <CategorySpendBars data={data} />
       </CardContent>
     </Card>
   )
