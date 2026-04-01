@@ -5,6 +5,9 @@ import type { DashboardRange } from "@/lib/dashboardFilter"
 export type TableDensity = "comfortable" | "compact"
 export type AccentPreset = "default" | "emerald" | "blue"
 
+export const TRANSACTIONS_PAGE_SIZES = [10, 25, 50, 100] as const
+export type TransactionsPageSize = (typeof TRANSACTIONS_PAGE_SIZES)[number]
+
 interface UIState {
   sidebarCollapsed: boolean
   dashboardRange: DashboardRange
@@ -12,12 +15,14 @@ interface UIState {
   showCategoryColumn: boolean
   showTypeColumn: boolean
   accent: AccentPreset
+  transactionsPageSize: TransactionsPageSize
   toggleSidebarCollapsed: () => void
   setDashboardRange: (r: DashboardRange) => void
   setTableDensity: (d: TableDensity) => void
   setShowCategoryColumn: (v: boolean) => void
   setShowTypeColumn: (v: boolean) => void
   setAccent: (a: AccentPreset) => void
+  setTransactionsPageSize: (n: TransactionsPageSize) => void
 }
 
 export const useUIStore = create<UIState>()(
@@ -29,6 +34,7 @@ export const useUIStore = create<UIState>()(
       showCategoryColumn: true,
       showTypeColumn: true,
       accent: "default",
+      transactionsPageSize: 10,
       toggleSidebarCollapsed: () =>
         set((s) => ({ sidebarCollapsed: !s.sidebarCollapsed })),
       setDashboardRange: (dashboardRange) => set({ dashboardRange }),
@@ -36,6 +42,8 @@ export const useUIStore = create<UIState>()(
       setShowCategoryColumn: (showCategoryColumn) => set({ showCategoryColumn }),
       setShowTypeColumn: (showTypeColumn) => set({ showTypeColumn }),
       setAccent: (accent) => set({ accent }),
+      setTransactionsPageSize: (transactionsPageSize) =>
+        set({ transactionsPageSize }),
     }),
     { name: "finance-dashboard-ui" },
   ),

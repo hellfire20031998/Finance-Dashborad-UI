@@ -44,8 +44,10 @@ import {
   EditTransactionDialog,
   EditTransactionIconButton,
 } from "@/components/table/EditTransactionDialog"
+import { TransactionsPagination } from "@/components/table/TransactionsPagination"
 import { cn } from "@/lib/utils"
 import type { Transaction } from "@/lib/data"
+import type { TransactionsPageSize } from "@/store/useUIStore"
 
 const formatMoney = (n: number) =>
   new Intl.NumberFormat(undefined, {
@@ -56,6 +58,230 @@ const formatMoney = (n: number) =>
 type Props = {
   loading?: boolean
   reducedMotion?: boolean
+}
+
+type PagedBodyProps = {
+  rows: Transaction[]
+  pageSize: TransactionsPageSize
+  setPageSize: (n: TransactionsPageSize) => void
+  isAdmin: boolean
+  setEditTarget: (t: Transaction) => void
+  colCount: number
+  compact: boolean
+  headPad: string
+  cellPad: string
+  showCategoryColumn: boolean
+  showTypeColumn: boolean
+  sortBy: "date" | "amount"
+  sortDir: "asc" | "desc"
+  setSort: (by: "date" | "amount") => void
+}
+
+function TransactionsTablePagedBody({
+  rows,
+  pageSize,
+  setPageSize,
+  isAdmin,
+  setEditTarget,
+  colCount,
+  compact,
+  headPad,
+  cellPad,
+  showCategoryColumn,
+  showTypeColumn,
+  sortBy,
+  sortDir,
+  setSort,
+}: PagedBodyProps) {
+  const [page, setPage] = useState(0)
+  const totalPages = Math.max(1, Math.ceil(rows.length / pageSize))
+  const safePage = Math.min(page, totalPages - 1)
+  const pageOffset = safePage * pageSize
+  const pageRows =
+    rows.length === 0 ? [] : rows.slice(pageOffset, pageOffset + pageSize)
+
+  return (
+    <div className="rounded-md border border-border bg-card shadow-sm">
+      <div className="relative max-h-[min(520px,60vh)] w-full overflow-auto">
+        <table className="w-full caption-bottom text-sm">
+          <TableHeader className="sticky top-0 z-20 border-b border-border bg-card/95 shadow-sm backdrop-blur-md supports-[backdrop-filter]:bg-card/80 [&_tr]:border-b">
+            <TableRow className="border-0 hover:bg-transparent">
+              <TableHead
+                className={cn(
+                  "w-12 min-w-12 text-center tabular-nums text-muted-foreground",
+                  headPad,
+                )}
+              >
+                S.No.
+              </TableHead>
+              <TableHead className={cn("min-w-[120px] whitespace-nowrap", headPad)}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={cn("-ml-2 gap-1 font-semibold", compact && "h-7 text-xs")}
+                  onClick={() => setSort("date")}
+                >
+                  Date
+                  {sortBy === "date" &&
+                    (sortDir === "asc" ? (
+                      <ArrowUpAZ className="size-4 opacity-70" />
+                    ) : (
+                      <ArrowDownAZ className="size-4 opacity-70" />
+                    ))}
+                </Button>
+              </TableHead>
+              <TableHead className={cn("min-w-[100px]", headPad)}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={cn("-ml-2 gap-1 font-semibold", compact && "h-7 text-xs")}
+                  onClick={() => setSort("amount")}
+                >
+                  Amount
+                  {sortBy === "amount" &&
+                    (sortDir === "asc" ? (
+                      <ArrowUpAZ className="size-4 opacity-70" />
+                    ) : (
+                      <ArrowDownAZ className="size-4 opacity-70" />
+                    ))}
+                </Button>
+              </TableHead>
+              {showCategoryColumn && (
+                <TableHead className={cn(headPad)}>Category</TableHead>
+              )}
+              {showTypeColumn && (
+                <TableHead className={cn("text-right", headPad)}>Type</TableHead>
+              )}
+              {isAdmin && (
+                <TableHead className={cn("w-[72px] text-right", headPad)}>
+                  Actions
+                </TableHead>
+              )}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {rows.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={colCount} className="h-32 text-center">
+                  <p className="text-sm text-muted-foreground">
+                    No transactions match your filters.
+                  </p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Try clearing search or switching the type filter.
+                  </p>
+                </TableCell>
+              </TableRow>
+            ) : (
+              pageRows.map((t, index) => (
+                <TableRow
+                  key={t.id}
+                  tabIndex={isAdmin ? 0 : undefined}
+                  title={
+                    isAdmin
+                      ? "Double-click or press Enter to edit this transaction"
+                      : undefined
+                  }
+                  className={cn(
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                    (pageOffset + index) % 2 === 1 && "bg-muted/25",
+                    isAdmin && "cursor-pointer",
+                  )}
+                  onDoubleClick={
+                    isAdmin
+                      ? () => {
+                          setEditTarget(t)
+                        }
+                      : undefined
+                  }
+                  onKeyDown={(e) => {
+                    if (!isAdmin || e.key !== "Enter") return
+                    if (
+                      e.target instanceof HTMLButtonElement ||
+                      e.target instanceof HTMLInputElement
+                    ) {
+                      return
+                    }
+                    e.preventDefault()
+                    setEditTarget(t)
+                  }}
+                >
+                  <TableCell
+                    className={cn(
+                      "text-center tabular-nums text-muted-foreground",
+                      cellPad,
+                    )}
+                  >
+                    {pageOffset + index + 1}
+                  </TableCell>
+                  <TableCell
+                    className={cn(
+                      "whitespace-nowrap text-muted-foreground",
+                      cellPad,
+                    )}
+                  >
+                    {new Date(t.date).toLocaleDateString()}
+                  </TableCell>
+                  <TableCell
+                    className={cn(
+                      "font-medium tabular-nums",
+                      cellPad,
+                      t.type === "income"
+                        ? "text-emerald-600 dark:text-emerald-400"
+                        : "text-foreground",
+                    )}
+                  >
+                    {t.type === "income" ? "+" : "−"}
+                    {formatMoney(t.amount)}
+                  </TableCell>
+                  {showCategoryColumn && (
+                    <TableCell className={cellPad}>
+                      <span className="flex items-center gap-2">
+                        <span
+                          className="size-2 shrink-0 rounded-full"
+                          style={{
+                            backgroundColor: getCategoryColor(t.category),
+                          }}
+                        />
+                        {t.category}
+                      </span>
+                    </TableCell>
+                  )}
+                  {showTypeColumn && (
+                    <TableCell className={cn("text-right", cellPad)}>
+                      <Badge
+                        variant={
+                          t.type === "income" ? "default" : "secondary"
+                        }
+                        className="capitalize"
+                      >
+                        {t.type}
+                      </Badge>
+                    </TableCell>
+                  )}
+                  {isAdmin && (
+                    <TableCell className={cn("text-right", cellPad)}>
+                      <EditTransactionIconButton
+                        transaction={t}
+                        onOpen={() => setEditTarget(t)}
+                      />
+                    </TableCell>
+                  )}
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </table>
+      </div>
+      <TransactionsPagination
+        page={safePage}
+        totalPages={totalPages}
+        pageSize={pageSize}
+        totalItems={rows.length}
+        onPageChange={setPage}
+        onPageSizeChange={setPageSize}
+      />
+    </div>
+  )
 }
 
 export function TransactionsTable({
@@ -79,6 +305,8 @@ export function TransactionsTable({
   const setShowCategoryColumn = useUIStore((s) => s.setShowCategoryColumn)
   const showTypeColumn = useUIStore((s) => s.showTypeColumn)
   const setShowTypeColumn = useUIStore((s) => s.setShowTypeColumn)
+  const pageSize = useUIStore((s) => s.transactionsPageSize)
+  const setPageSize = useUIStore((s) => s.setTransactionsPageSize)
 
   const [editTarget, setEditTarget] = useState<Transaction | null>(null)
 
@@ -238,178 +466,23 @@ export function TransactionsTable({
         </div>
       </div>
 
-      <div className="rounded-md border border-border bg-card shadow-sm">
-        <div className="relative max-h-[min(520px,60vh)] w-full overflow-auto">
-          <table className="w-full caption-bottom text-sm">
-            <TableHeader className="sticky top-0 z-20 border-b border-border bg-card/95 shadow-sm backdrop-blur-md supports-[backdrop-filter]:bg-card/80 [&_tr]:border-b">
-              <TableRow className="border-0 hover:bg-transparent">
-                <TableHead
-                  className={cn(
-                    "w-12 min-w-12 text-center tabular-nums text-muted-foreground",
-                    headPad,
-                  )}
-                >
-                  S.No.
-                </TableHead>
-                <TableHead className={cn("min-w-[120px] whitespace-nowrap", headPad)}>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className={cn("-ml-2 gap-1 font-semibold", compact && "h-7 text-xs")}
-                    onClick={() => setSort("date")}
-                  >
-                    Date
-                    {sortBy === "date" &&
-                      (sortDir === "asc" ? (
-                        <ArrowUpAZ className="size-4 opacity-70" />
-                      ) : (
-                        <ArrowDownAZ className="size-4 opacity-70" />
-                      ))}
-                  </Button>
-                </TableHead>
-                <TableHead className={cn("min-w-[100px]", headPad)}>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className={cn("-ml-2 gap-1 font-semibold", compact && "h-7 text-xs")}
-                    onClick={() => setSort("amount")}
-                  >
-                    Amount
-                    {sortBy === "amount" &&
-                      (sortDir === "asc" ? (
-                        <ArrowUpAZ className="size-4 opacity-70" />
-                      ) : (
-                        <ArrowDownAZ className="size-4 opacity-70" />
-                      ))}
-                  </Button>
-                </TableHead>
-                {showCategoryColumn && (
-                  <TableHead className={cn(headPad)}>Category</TableHead>
-                )}
-                {showTypeColumn && (
-                  <TableHead className={cn("text-right", headPad)}>Type</TableHead>
-                )}
-                {isAdmin && (
-                  <TableHead className={cn("w-[72px] text-right", headPad)}>
-                    Actions
-                  </TableHead>
-                )}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {rows.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={colCount} className="h-32 text-center">
-                    <p className="text-sm text-muted-foreground">
-                      No transactions match your filters.
-                    </p>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      Try clearing search or switching the type filter.
-                    </p>
-                  </TableCell>
-                </TableRow>
-              ) : (
-                rows.map((t, index) => (
-                  <TableRow
-                    key={t.id}
-                    tabIndex={isAdmin ? 0 : undefined}
-                    title={
-                      isAdmin
-                        ? "Double-click or press Enter to edit this transaction"
-                        : undefined
-                    }
-                    className={cn(
-                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-                      index % 2 === 1 && "bg-muted/25",
-                      isAdmin && "cursor-pointer",
-                    )}
-                    onDoubleClick={
-                      isAdmin
-                        ? () => {
-                            setEditTarget(t)
-                          }
-                        : undefined
-                    }
-                    onKeyDown={(e) => {
-                      if (!isAdmin || e.key !== "Enter") return
-                      if (
-                        e.target instanceof HTMLButtonElement ||
-                        e.target instanceof HTMLInputElement
-                      ) {
-                        return
-                      }
-                      e.preventDefault()
-                      setEditTarget(t)
-                    }}
-                  >
-                    <TableCell
-                      className={cn(
-                        "text-center tabular-nums text-muted-foreground",
-                        cellPad,
-                      )}
-                    >
-                      {index + 1}
-                    </TableCell>
-                    <TableCell
-                      className={cn(
-                        "whitespace-nowrap text-muted-foreground",
-                        cellPad,
-                      )}
-                    >
-                      {new Date(t.date).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell
-                      className={cn(
-                        "font-medium tabular-nums",
-                        cellPad,
-                        t.type === "income"
-                          ? "text-emerald-600 dark:text-emerald-400"
-                          : "text-foreground",
-                      )}
-                    >
-                      {t.type === "income" ? "+" : "−"}
-                      {formatMoney(t.amount)}
-                    </TableCell>
-                    {showCategoryColumn && (
-                      <TableCell className={cellPad}>
-                        <span className="flex items-center gap-2">
-                          <span
-                            className="size-2 shrink-0 rounded-full"
-                            style={{
-                              backgroundColor: getCategoryColor(t.category),
-                            }}
-                          />
-                          {t.category}
-                        </span>
-                      </TableCell>
-                    )}
-                    {showTypeColumn && (
-                      <TableCell className={cn("text-right", cellPad)}>
-                        <Badge
-                          variant={
-                            t.type === "income" ? "default" : "secondary"
-                          }
-                          className="capitalize"
-                        >
-                          {t.type}
-                        </Badge>
-                      </TableCell>
-                    )}
-                    {isAdmin && (
-                      <TableCell className={cn("text-right", cellPad)}>
-                        <EditTransactionIconButton
-                          transaction={t}
-                          onOpen={() => setEditTarget(t)}
-                        />
-                      </TableCell>
-                    )}
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </table>
-        </div>
-      </div>
+      <TransactionsTablePagedBody
+        key={`${search}|${typeFilter}|${pageSize}`}
+        rows={rows}
+        pageSize={pageSize}
+        setPageSize={setPageSize}
+        isAdmin={isAdmin}
+        setEditTarget={setEditTarget}
+        colCount={colCount}
+        compact={compact}
+        headPad={headPad}
+        cellPad={cellPad}
+        showCategoryColumn={showCategoryColumn}
+        showTypeColumn={showTypeColumn}
+        sortBy={sortBy}
+        sortDir={sortDir}
+        setSort={setSort}
+      />
       {isAdmin && (
         <p className="text-center text-xs text-muted-foreground">
           Tip: Tab to a row and press{" "}
