@@ -8,13 +8,21 @@ import {
 } from "@/components/ui/select"
 import { ThemeToggle } from "@/components/theme/ThemeToggle"
 import { useFinanceStore } from "@/store/useStore"
+import { useUIStore } from "@/store/useUIStore"
 import type { UserRole } from "@/lib/data"
+import type { AccentPreset } from "@/store/useUIStore"
 import { Badge } from "@/components/ui/badge"
 
 const titles: Record<string, string> = {
   "/dashboard": "Dashboard",
   "/transactions": "Transactions",
   "/insights": "Insights",
+}
+
+const ACCENT_LABELS: Record<AccentPreset, string> = {
+  default: "Accent: Default",
+  emerald: "Accent: Emerald",
+  blue: "Accent: Blue",
 }
 
 type Props = {
@@ -33,6 +41,8 @@ export function TopBar({
   const location = useLocation()
   const role = useFinanceStore((s) => s.role)
   const setRole = useFinanceStore((s) => s.setRole)
+  const accent = useUIStore((s) => s.accent)
+  const setAccent = useUIStore((s) => s.setAccent)
 
   const title = titles[location.pathname] ?? "Finance"
 
@@ -42,6 +52,21 @@ export function TopBar({
         {title}
       </h1>
       <div className="flex flex-wrap items-center gap-2">
+        <Select
+          value={accent}
+          onValueChange={(v) => setAccent(v as AccentPreset)}
+        >
+          <SelectTrigger className="h-9 w-[150px] max-w-[42vw] text-xs sm:text-sm">
+            <SelectValue placeholder="Accent" />
+          </SelectTrigger>
+          <SelectContent>
+            {(Object.keys(ACCENT_LABELS) as AccentPreset[]).map((a) => (
+              <SelectItem key={a} value={a}>
+                {ACCENT_LABELS[a]}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         <div className="flex items-center gap-2">
           <span className="hidden text-sm text-muted-foreground sm:inline">
             Role

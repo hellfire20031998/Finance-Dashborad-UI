@@ -3,10 +3,12 @@ import { AppLayout } from "@/components/layout/AppLayout"
 import { DashboardPage } from "@/app/dashboard/DashboardPage"
 import { TransactionsPage } from "@/app/transactions/TransactionsPage"
 import { InsightsPage } from "@/app/insights/InsightsPage"
+import { Toaster } from "@/components/ui/sonner"
 
 export default function App() {
   return (
     <BrowserRouter>
+      <Toaster richColors position="top-center" />
       <Routes>
         <Route element={<AppLayout />}>
           <Route path="/" element={<Navigate to="/dashboard" replace />} />

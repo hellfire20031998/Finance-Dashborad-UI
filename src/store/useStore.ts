@@ -3,6 +3,7 @@ import type { Transaction, TransactionType, UserRole } from "@/lib/data"
 import {
   fetchTransactions,
   loadRoleFromStorage,
+  loadTransactionsFromStorage,
   saveRoleToStorage,
   syncPersist,
 } from "@/lib/api"
@@ -19,6 +20,8 @@ interface FinanceState {
   isBootstrapping: boolean
 
   bootstrap: () => Promise<void>
+  /** Re-read transactions from localStorage without full loading screen. */
+  reloadFromStorage: () => void
   setRole: (role: UserRole) => void
   setTypeFilter: (f: TypeFilter) => void
   setSearch: (s: string) => void
@@ -55,6 +58,11 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
     const transactions = await fetchTransactions()
     const role = parseRole(loadRoleFromStorage())
     set({ transactions, role, isBootstrapping: false })
+  },
+
+  reloadFromStorage: () => {
+    const txs = loadTransactionsFromStorage()
+    if (txs && txs.length > 0) set({ transactions: txs })
   },
 
   setRole: (role) => {

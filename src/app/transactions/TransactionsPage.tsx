@@ -1,27 +1,19 @@
 import { motion } from "framer-motion"
-import { Skeleton } from "@/components/ui/skeleton"
 import { TransactionsTable } from "@/components/table/TransactionsTable"
+import { useReducedMotion } from "@/hooks/useReducedMotion"
 import { useFinanceStore } from "@/store/useStore"
 
 export function TransactionsPage() {
   const loading = useFinanceStore((s) => s.isBootstrapping)
-
-  if (loading) {
-    return (
-      <div className="space-y-4">
-        <Skeleton className="h-10 w-full max-w-md" />
-        <Skeleton className="h-[360px] w-full" />
-      </div>
-    )
-  }
+  const reducedMotion = useReducedMotion()
 
   return (
     <motion.div
-      initial={{ opacity: 0 }}
+      initial={reducedMotion ? false : { opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ duration: 0.2 }}
+      transition={{ duration: reducedMotion ? 0 : 0.2 }}
     >
-      <TransactionsTable />
+      <TransactionsTable loading={loading} reducedMotion={reducedMotion} />
     </motion.div>
   )
 }

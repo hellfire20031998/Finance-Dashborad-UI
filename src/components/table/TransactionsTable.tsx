@@ -1,7 +1,21 @@
+import { useState } from "react"
 import { motion } from "framer-motion"
-import { ArrowDownAZ, ArrowUpAZ, Download } from "lucide-react"
+import {
+  ArrowDownAZ,
+  ArrowUpAZ,
+  Columns3,
+  Download,
+  StretchHorizontal,
+} from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 import {
   Select,
   SelectContent,
@@ -10,7 +24,6 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import {
-  Table,
   TableBody,
   TableCell,
   TableHead,
@@ -18,16 +31,21 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
+import { Skeleton } from "@/components/ui/skeleton"
 import { getCategoryColor } from "@/lib/data"
 import { downloadCsv, transactionsToCsv } from "@/lib/exportCsv"
 import {
   selectFilteredTransactions,
   useFinanceStore,
 } from "@/store/useStore"
+import { useUIStore } from "@/store/useUIStore"
 import { AddTransactionDialog } from "@/components/table/AddTransactionDialog"
-import { EditTransactionRowButton } from "@/components/table/EditTransactionDialog"
+import {
+  EditTransactionDialog,
+  EditTransactionIconButton,
+} from "@/components/table/EditTransactionDialog"
 import { cn } from "@/lib/utils"
+import type { Transaction } from "@/lib/data"
 
 const formatMoney = (n: number) =>
   new Intl.NumberFormat(undefined, {
@@ -35,7 +53,15 @@ const formatMoney = (n: number) =>
     currency: "USD",
   }).format(n)
 
-export function TransactionsTable() {
+type Props = {
+  loading?: boolean
+  reducedMotion?: boolean
+}
+
+export function TransactionsTable({
+  loading = false,
+  reducedMotion,
+}: Props) {
   const isAdmin = useFinanceStore((s) => s.role === "admin")
   const typeFilter = useFinanceStore((s) => s.typeFilter)
   const setTypeFilter = useFinanceStore((s) => s.setTypeFilter)
@@ -47,18 +73,86 @@ export function TransactionsTable() {
   const state = useFinanceStore()
   const rows = selectFilteredTransactions(state)
 
+  const tableDensity = useUIStore((s) => s.tableDensity)
+  const setTableDensity = useUIStore((s) => s.setTableDensity)
+  const showCategoryColumn = useUIStore((s) => s.showCategoryColumn)
+  const setShowCategoryColumn = useUIStore((s) => s.setShowCategoryColumn)
+  const showTypeColumn = useUIStore((s) => s.showTypeColumn)
+  const setShowTypeColumn = useUIStore((s) => s.setShowTypeColumn)
+
+  const [editTarget, setEditTarget] = useState<Transaction | null>(null)
+
+  const compact = tableDensity === "compact"
+  const cellPad = compact ? "px-2 py-1.5 text-xs" : "p-2"
+  const headPad = compact ? "h-8 px-2 py-1 text-xs" : "h-10 px-2"
+
+  const colCount =
+    1 +
+    2 +
+    (showCategoryColumn ? 1 : 0) +
+    (showTypeColumn ? 1 : 0) +
+    (isAdmin ? 1 : 0)
+
   function exportCsv() {
     const csv = transactionsToCsv(rows)
     downloadCsv(`transactions-${new Date().toISOString().slice(0, 10)}.csv`, csv)
   }
 
+  if (loading) {
+    return (
+      <div className="space-y-4">
+        <div className="flex flex-wrap gap-2">
+          <Skeleton className="h-9 w-full max-w-xs" />
+          <Skeleton className="h-9 w-40" />
+          <Skeleton className="h-9 w-24" />
+        </div>
+        <div className="rounded-md border">
+          <div className="max-h-[min(520px,60vh)] overflow-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b">
+                  {[1, 2, 3, 4, 5, 6].map((i) => (
+                    <th key={i} className="p-2 text-left">
+                      <Skeleton className="h-4 w-16" />
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <tr key={i} className="border-b">
+                    {[1, 2, 3, 4, 5, 6].map((j) => (
+                      <td key={j} className="p-2">
+                        <Skeleton className="h-4 w-full" />
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <motion.div
       className="space-y-4"
-      initial={{ opacity: 0, y: 6 }}
+      initial={reducedMotion ? false : { opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.2 }}
+      transition={{ duration: reducedMotion ? 0 : 0.2 }}
     >
+      {editTarget && (
+        <EditTransactionDialog
+          transaction={editTarget}
+          open
+          onOpenChange={(o) => {
+            if (!o) setEditTarget(null)
+          }}
+        />
+      )}
+
       <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
         <div className="flex flex-1 flex-col gap-2 sm:flex-row sm:items-center">
           <Input
@@ -85,6 +179,57 @@ export function TransactionsTable() {
           </Select>
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          <Button
+            type="button"
+            variant={tableDensity === "compact" ? "default" : "outline"}
+            size="sm"
+            className="gap-1.5"
+            onClick={() =>
+              setTableDensity(
+                tableDensity === "compact" ? "comfortable" : "compact",
+              )
+            }
+            aria-pressed={tableDensity === "compact"}
+            aria-label="Toggle table density"
+          >
+            <StretchHorizontal className="size-4" />
+            <span className="hidden sm:inline">Density</span>
+          </Button>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" size="sm" className="gap-1.5">
+                <Columns3 className="size-4" />
+                Columns
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-56" align="end">
+              <div className="space-y-3">
+                <p className="text-sm font-medium">Visible columns</p>
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    id="col-cat"
+                    checked={showCategoryColumn}
+                    onCheckedChange={(v) =>
+                      setShowCategoryColumn(v === true)
+                    }
+                  />
+                  <Label htmlFor="col-cat" className="text-sm font-normal">
+                    Category
+                  </Label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    id="col-type"
+                    checked={showTypeColumn}
+                    onCheckedChange={(v) => setShowTypeColumn(v === true)}
+                  />
+                  <Label htmlFor="col-type" className="text-sm font-normal">
+                    Type
+                  </Label>
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
           <Button variant="outline" size="sm" className="gap-1.5" onClick={exportCsv}>
             <Download className="size-4" />
             Export CSV
@@ -94,15 +239,23 @@ export function TransactionsTable() {
       </div>
 
       <div className="rounded-md border border-border bg-card shadow-sm">
-        <ScrollArea className="w-full">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="min-w-[120px]">
+        <div className="relative max-h-[min(520px,60vh)] w-full overflow-auto">
+          <table className="w-full caption-bottom text-sm">
+            <TableHeader className="sticky top-0 z-20 border-b border-border bg-card/95 shadow-sm backdrop-blur-md supports-[backdrop-filter]:bg-card/80 [&_tr]:border-b">
+              <TableRow className="border-0 hover:bg-transparent">
+                <TableHead
+                  className={cn(
+                    "w-12 min-w-12 text-center tabular-nums text-muted-foreground",
+                    headPad,
+                  )}
+                >
+                  S.No.
+                </TableHead>
+                <TableHead className={cn("min-w-[120px] whitespace-nowrap", headPad)}>
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="-ml-2 gap-1 font-semibold"
+                    className={cn("-ml-2 gap-1 font-semibold", compact && "h-7 text-xs")}
                     onClick={() => setSort("date")}
                   >
                     Date
@@ -114,11 +267,11 @@ export function TransactionsTable() {
                       ))}
                   </Button>
                 </TableHead>
-                <TableHead className="min-w-[100px]">
+                <TableHead className={cn("min-w-[100px]", headPad)}>
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="-ml-2 gap-1 font-semibold"
+                    className={cn("-ml-2 gap-1 font-semibold", compact && "h-7 text-xs")}
                     onClick={() => setSort("amount")}
                   >
                     Amount
@@ -130,20 +283,23 @@ export function TransactionsTable() {
                       ))}
                   </Button>
                 </TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead className="text-right">Type</TableHead>
+                {showCategoryColumn && (
+                  <TableHead className={cn(headPad)}>Category</TableHead>
+                )}
+                {showTypeColumn && (
+                  <TableHead className={cn("text-right", headPad)}>Type</TableHead>
+                )}
                 {isAdmin && (
-                  <TableHead className="w-[72px] text-right">Actions</TableHead>
+                  <TableHead className={cn("w-[72px] text-right", headPad)}>
+                    Actions
+                  </TableHead>
                 )}
               </TableRow>
             </TableHeader>
             <TableBody>
               {rows.length === 0 ? (
                 <TableRow>
-                  <TableCell
-                    colSpan={isAdmin ? 5 : 4}
-                    className="h-32 text-center"
-                  >
+                  <TableCell colSpan={colCount} className="h-32 text-center">
                     <p className="text-sm text-muted-foreground">
                       No transactions match your filters.
                     </p>
@@ -153,14 +309,59 @@ export function TransactionsTable() {
                   </TableCell>
                 </TableRow>
               ) : (
-                rows.map((t) => (
-                  <TableRow key={t.id}>
-                    <TableCell className="whitespace-nowrap text-muted-foreground">
+                rows.map((t, index) => (
+                  <TableRow
+                    key={t.id}
+                    tabIndex={isAdmin ? 0 : undefined}
+                    title={
+                      isAdmin
+                        ? "Double-click or press Enter to edit this transaction"
+                        : undefined
+                    }
+                    className={cn(
+                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                      index % 2 === 1 && "bg-muted/25",
+                      isAdmin && "cursor-pointer",
+                    )}
+                    onDoubleClick={
+                      isAdmin
+                        ? () => {
+                            setEditTarget(t)
+                          }
+                        : undefined
+                    }
+                    onKeyDown={(e) => {
+                      if (!isAdmin || e.key !== "Enter") return
+                      if (
+                        e.target instanceof HTMLButtonElement ||
+                        e.target instanceof HTMLInputElement
+                      ) {
+                        return
+                      }
+                      e.preventDefault()
+                      setEditTarget(t)
+                    }}
+                  >
+                    <TableCell
+                      className={cn(
+                        "text-center tabular-nums text-muted-foreground",
+                        cellPad,
+                      )}
+                    >
+                      {index + 1}
+                    </TableCell>
+                    <TableCell
+                      className={cn(
+                        "whitespace-nowrap text-muted-foreground",
+                        cellPad,
+                      )}
+                    >
                       {new Date(t.date).toLocaleDateString()}
                     </TableCell>
                     <TableCell
                       className={cn(
                         "font-medium tabular-nums",
+                        cellPad,
                         t.type === "income"
                           ? "text-emerald-600 dark:text-emerald-400"
                           : "text-foreground",
@@ -169,38 +370,56 @@ export function TransactionsTable() {
                       {t.type === "income" ? "+" : "−"}
                       {formatMoney(t.amount)}
                     </TableCell>
-                    <TableCell>
-                      <span className="flex items-center gap-2">
-                        <span
-                          className="size-2 shrink-0 rounded-full"
-                          style={{
-                            backgroundColor: getCategoryColor(t.category),
-                          }}
-                        />
-                        {t.category}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Badge
-                        variant={t.type === "income" ? "default" : "secondary"}
-                        className="capitalize"
-                      >
-                        {t.type}
-                      </Badge>
-                    </TableCell>
+                    {showCategoryColumn && (
+                      <TableCell className={cellPad}>
+                        <span className="flex items-center gap-2">
+                          <span
+                            className="size-2 shrink-0 rounded-full"
+                            style={{
+                              backgroundColor: getCategoryColor(t.category),
+                            }}
+                          />
+                          {t.category}
+                        </span>
+                      </TableCell>
+                    )}
+                    {showTypeColumn && (
+                      <TableCell className={cn("text-right", cellPad)}>
+                        <Badge
+                          variant={
+                            t.type === "income" ? "default" : "secondary"
+                          }
+                          className="capitalize"
+                        >
+                          {t.type}
+                        </Badge>
+                      </TableCell>
+                    )}
                     {isAdmin && (
-                      <TableCell className="text-right">
-                        <EditTransactionRowButton transaction={t} />
+                      <TableCell className={cn("text-right", cellPad)}>
+                        <EditTransactionIconButton
+                          transaction={t}
+                          onOpen={() => setEditTarget(t)}
+                        />
                       </TableCell>
                     )}
                   </TableRow>
                 ))
               )}
             </TableBody>
-          </Table>
-          <ScrollBar orientation="horizontal" />
-        </ScrollArea>
+          </table>
+        </div>
       </div>
+      {isAdmin && (
+        <p className="text-center text-xs text-muted-foreground">
+          Tip: Tab to a row and press{" "}
+          <kbd className="rounded border border-border bg-muted px-1 py-0.5 font-mono text-[10px]">
+            Enter
+          </kbd>
+          , or double-click a row to edit. Same action for keyboard and pointer
+          users.
+        </p>
+      )}
     </motion.div>
   )
 }

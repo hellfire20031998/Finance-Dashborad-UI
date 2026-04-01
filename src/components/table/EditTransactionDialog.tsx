@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
-import { Pencil } from "lucide-react"
+import { Loader2, Pencil } from "lucide-react"
+import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -63,6 +64,7 @@ export function EditTransactionDialog({
         category,
         type,
       })
+      toast.success("Transaction updated")
       onOpenChange(false)
     } finally {
       setSubmitting(false)
@@ -142,8 +144,15 @@ export function EditTransactionDialog({
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={submitting}>
-              {submitting ? "Saving…" : "Save changes"}
+            <Button type="submit" disabled={submitting} className="gap-2">
+              {submitting ? (
+                <>
+                  <Loader2 className="size-4 animate-spin" />
+                  Saving…
+                </>
+              ) : (
+                "Save changes"
+              )}
             </Button>
           </DialogFooter>
         </form>
@@ -152,30 +161,22 @@ export function EditTransactionDialog({
   )
 }
 
-type RowEditProps = {
+type IconProps = {
   transaction: Transaction
+  onOpen: () => void
 }
 
-export function EditTransactionRowButton({ transaction }: RowEditProps) {
-  const [open, setOpen] = useState(false)
-
+export function EditTransactionIconButton({ transaction, onOpen }: IconProps) {
   return (
-    <>
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon"
-        className="size-8 shrink-0"
-        aria-label={`Edit transaction ${transaction.id}`}
-        onClick={() => setOpen(true)}
-      >
-        <Pencil className="size-4" />
-      </Button>
-      <EditTransactionDialog
-        transaction={transaction}
-        open={open}
-        onOpenChange={setOpen}
-      />
-    </>
+    <Button
+      type="button"
+      variant="ghost"
+      size="icon"
+      className="size-8 shrink-0"
+      aria-label={`Edit transaction ${transaction.category} ${transaction.date}`}
+      onClick={onOpen}
+    >
+      <Pencil className="size-4" />
+    </Button>
   )
 }

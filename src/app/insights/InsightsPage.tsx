@@ -1,6 +1,12 @@
 import { motion } from "framer-motion"
 import { useMemo } from "react"
-import { TrendingDown, TrendingUp, PieChart as PieIcon, CalendarDays } from "lucide-react"
+import {
+  TrendingDown,
+  TrendingUp,
+  PieChart as PieIcon,
+  CalendarDays,
+  Sparkles,
+} from "lucide-react"
 import {
   Card,
   CardContent,
@@ -15,7 +21,9 @@ import {
   monthlyExpenseComparison,
   spendingTrendMessage,
 } from "@/lib/metrics"
+import { useReducedMotion } from "@/hooks/useReducedMotion"
 import { useFinanceStore } from "@/store/useStore"
+import { cn } from "@/lib/utils"
 
 const formatMoney = (n: number) =>
   new Intl.NumberFormat(undefined, {
@@ -27,6 +35,7 @@ const formatMoney = (n: number) =>
 export function InsightsPage() {
   const transactions = useFinanceStore((s) => s.transactions)
   const loading = useFinanceStore((s) => s.isBootstrapping)
+  const reducedMotion = useReducedMotion()
 
   const top = useMemo(
     () => highestSpendingCategory(transactions),
@@ -41,10 +50,26 @@ export function InsightsPage() {
     [transactions],
   )
 
+  const monthlyTone =
+    monthly.diff > 0
+      ? "border-rose-500/20 bg-rose-500/[0.06] dark:bg-rose-500/10"
+      : monthly.diff < 0
+        ? "border-emerald-500/20 bg-emerald-500/[0.06] dark:bg-emerald-500/10"
+        : "border-border bg-muted/20"
+
+  const trendTone =
+    trend.toLowerCase().includes("higher") ||
+    trend.toLowerCase().includes("up")
+      ? "border-amber-500/20 bg-amber-500/[0.05] dark:bg-amber-500/10"
+      : trend.toLowerCase().includes("lower") ||
+          trend.toLowerCase().includes("down")
+        ? "border-emerald-500/20 bg-emerald-500/[0.05] dark:bg-emerald-500/10"
+        : "border-border bg-muted/15"
+
   if (loading) {
     return (
       <div className="grid gap-4 md:grid-cols-2">
-        {[1, 2, 3, 4].map((i) => (
+        {[1, 2, 3].map((i) => (
           <Card key={i}>
             <CardHeader>
               <Skeleton className="h-5 w-40" />
@@ -62,11 +87,18 @@ export function InsightsPage() {
   return (
     <motion.div
       className="grid gap-4 md:grid-cols-2"
-      initial={{ opacity: 0, y: 6 }}
+      initial={reducedMotion ? false : { opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.25 }}
+      transition={{ duration: reducedMotion ? 0 : 0.25 }}
     >
-      <Card>
+      <Card
+        className={cn(
+          "border transition-colors",
+          top
+            ? "border-primary/15 bg-primary/[0.04]"
+            : "bg-muted/20",
+        )}
+      >
         <CardHeader className="flex flex-row items-start gap-3 space-y-0">
           <div
             className="mt-0.5 flex size-9 items-center justify-center rounded-lg"
@@ -102,9 +134,9 @@ export function InsightsPage() {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className={cn("border", monthlyTone)}>
         <CardHeader className="flex flex-row items-start gap-3 space-y-0">
-          <div className="mt-0.5 flex size-9 items-center justify-center rounded-lg bg-muted">
+          <div className="mt-0.5 flex size-9 items-center justify-center rounded-lg bg-background/60">
             <CalendarDays className="size-5 text-muted-foreground" />
           </div>
           <div>
@@ -159,10 +191,17 @@ export function InsightsPage() {
         </CardContent>
       </Card>
 
-      <Card className="md:col-span-2">
-        <CardHeader>
-          <CardTitle>Spending trend</CardTitle>
-          <CardDescription>Rolling 30-day window vs the prior 30 days.</CardDescription>
+      <Card className={cn("border md:col-span-2", trendTone)}>
+        <CardHeader className="flex flex-row items-start gap-3 space-y-0">
+          <div className="mt-0.5 flex size-9 items-center justify-center rounded-lg bg-background/60">
+            <Sparkles className="size-5 text-muted-foreground" />
+          </div>
+          <div>
+            <CardTitle>Spending trend</CardTitle>
+            <CardDescription>
+              Rolling 30-day window vs the prior 30 days.
+            </CardDescription>
+          </div>
         </CardHeader>
         <CardContent>
           <p className="text-sm leading-relaxed text-foreground/90">{trend}</p>

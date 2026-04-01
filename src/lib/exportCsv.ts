@@ -6,11 +6,12 @@ function escapeCsv(value: string) {
 }
 
 export function transactionsToCsv(rows: Transaction[]): string {
-  const headers = ["Date", "Amount", "Category", "Type"]
+  const headers = ["S.No.", "Date", "Amount", "Category", "Type"]
   const lines = [
     headers.join(","),
-    ...rows.map((r) =>
+    ...rows.map((r, i) =>
       [
+        String(i + 1),
         escapeCsv(r.date),
         String(r.amount),
         escapeCsv(r.category),

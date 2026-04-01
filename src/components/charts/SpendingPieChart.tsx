@@ -1,6 +1,7 @@
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts"
 import type { CategorySpend } from "@/lib/metrics"
 import { getCategoryColor } from "@/lib/data"
+import { CategorySpendBars } from "@/components/charts/CategorySpendBars"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 
@@ -97,6 +98,7 @@ export function SpendingPieChart({ data, loading }: Props) {
             </li>
           ))}
         </ul>
+        <CategorySpendBars data={data} />
       </CardContent>
     </Card>
   )

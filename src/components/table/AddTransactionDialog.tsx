@@ -1,5 +1,6 @@
 import { useState } from "react"
-import { Plus } from "lucide-react"
+import { Loader2, Plus } from "lucide-react"
+import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -43,6 +44,7 @@ export function AddTransactionDialog() {
         category,
         type,
       })
+      toast.success("Transaction added")
       setOpen(false)
       setAmount("")
       setDate(new Date().toISOString().slice(0, 10))
@@ -127,8 +129,15 @@ export function AddTransactionDialog() {
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>
               Cancel
             </Button>
-            <Button type="submit" disabled={submitting}>
-              {submitting ? "Saving…" : "Save"}
+            <Button type="submit" disabled={submitting} className="gap-2">
+              {submitting ? (
+                <>
+                  <Loader2 className="size-4 animate-spin" />
+                  Saving…
+                </>
+              ) : (
+                "Save"
+              )}
             </Button>
           </DialogFooter>
         </form>
