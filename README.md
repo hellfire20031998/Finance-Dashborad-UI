@@ -25,7 +25,7 @@ No `.env` required.
 
 ## Features
 
-- **Dashboard:** date range, summary + sparklines, savings / cash flow, balance line, category pie + horizontal bars, empty state.
+- **Dashboard:** date range, summary + sparklines, savings / cash flow, balance line, spending by category (pie / bars toggle), empty state.
 - **Transactions:** category search, type filter, sort, pagination, column toggles, density, CSV (filtered). Admin: add + edit (row / Enter / double-click). Viewer: read-only.
 - **Insights:** top expense category, month vs month, rolling 30-day trend.
 - **Shell:** responsive sidebar / mobile drawer, breadcrumbs, theme + accents, toasts.

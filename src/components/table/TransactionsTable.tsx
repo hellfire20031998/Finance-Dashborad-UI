@@ -55,6 +55,17 @@ const formatMoney = (n: number) =>
     currency: "USD",
   }).format(n)
 
+/** Show every row without a vertical scrollbar up to this many rows per page. */
+const TABLE_BODY_SCROLL_AFTER_ROWS = 10
+
+/** Max viewport height for the table body area when scrolling (header + 10 data rows). */
+function transactionsTableScrollMaxHeight(compact: boolean): string {
+  const headerPx = compact ? 40 : 44
+  const rowPx = compact ? 38 : 46
+  const px = headerPx + TABLE_BODY_SCROLL_AFTER_ROWS * rowPx
+  return `min(${px}px, 60vh)`
+}
+
 type Props = {
   loading?: boolean
   reducedMotion?: boolean
@@ -100,9 +111,21 @@ function TransactionsTablePagedBody({
   const pageRows =
     rows.length === 0 ? [] : rows.slice(pageOffset, pageOffset + pageSize)
 
+  const scrollVertically = pageRows.length > TABLE_BODY_SCROLL_AFTER_ROWS
+
   return (
     <div className="rounded-md border border-border bg-card shadow-sm">
-      <div className="relative max-h-[min(520px,60vh)] w-full overflow-auto">
+      <div
+        className={cn(
+          "scrollbar-themed relative w-full overflow-x-auto",
+          scrollVertically && "overflow-y-auto",
+        )}
+        style={
+          scrollVertically
+            ? { maxHeight: transactionsTableScrollMaxHeight(compact) }
+            : undefined
+        }
+      >
         <table className="w-full caption-bottom text-sm">
           <TableHeader className="sticky top-0 z-20 border-b border-border bg-card/95 shadow-sm backdrop-blur-md supports-[backdrop-filter]:bg-card/80 [&_tr]:border-b">
             <TableRow className="border-0 hover:bg-transparent">
@@ -335,7 +358,10 @@ export function TransactionsTable({
           <Skeleton className="h-9 w-24" />
         </div>
         <div className="rounded-md border">
-          <div className="max-h-[min(520px,60vh)] overflow-auto">
+          <div
+            className="scrollbar-themed overflow-x-auto overflow-y-auto"
+            style={{ maxHeight: transactionsTableScrollMaxHeight(compact) }}
+          >
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b">

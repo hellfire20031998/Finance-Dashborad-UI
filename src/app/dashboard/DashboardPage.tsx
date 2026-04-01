@@ -2,8 +2,7 @@ import { motion } from "framer-motion"
 import { useMemo } from "react"
 import { SummaryCards } from "@/components/cards/SummaryCards"
 import { BalanceLineChart } from "@/components/charts/BalanceLineChart"
-import { CategorySpendBarsSection } from "@/components/charts/CategorySpendBars"
-import { SpendingPieChart } from "@/components/charts/SpendingPieChart"
+import { SpendingByCategoryPanel } from "@/components/charts/SpendingByCategoryPanel"
 import { DateRangeChips } from "@/components/dashboard/DateRangeChips"
 import { DashboardEmptyState } from "@/components/dashboard/DashboardEmptyState"
 import { SavingsAndFlowCards } from "@/components/cards/SavingsAndFlowCards"
@@ -121,9 +120,8 @@ export function DashboardPage() {
           />
           <div className="grid min-w-0 gap-6 lg:grid-cols-2 *:min-w-0">
             <BalanceLineChart data={lineData} loading={loading} />
-            <SpendingPieChart data={pieData} loading={loading} />
+            <SpendingByCategoryPanel data={pieData} loading={loading} />
           </div>
-          <CategorySpendBarsSection data={pieData} loading={loading} />
         </>
       )}
     </motion.div>
