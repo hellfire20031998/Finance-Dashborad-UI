@@ -13,6 +13,8 @@ npm run preview              # optional: serve dist/
 
 No `.env` required.
 
+**CI:** `.github/workflows/ci.yml` runs `npm ci`, `lint`, and `build` on every push and pull request.
+
 ## RBAC (demo only)
 
 **Viewer / Admin** in the top bar → `finance-dashboard-role` in `localStorage`. Controls add/edit on Transactions only; **not** authentication or server enforcement.
