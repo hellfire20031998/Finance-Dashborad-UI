@@ -39,82 +39,369 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  /* Win2K custom tokens */
+  --color-win-silver: var(--win-silver);
+  --color-win-silver-light: var(--win-silver-light);
+  --color-win-silver-dark: var(--win-silver-dark);
+  --color-win-titlebar-start: var(--win-titlebar-start);
+  --color-win-titlebar-end: var(--win-titlebar-end);
+  --color-win-blue: var(--win-blue);
 }
 
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --radius: 0px;
+
+  /* Windows 2000 silver palette */
+  --win-silver: #d4d0c8;
+  --win-silver-light: #f0ece0;
+  --win-silver-dark: #808080;
+  --win-titlebar-start: #0a246a;
+  --win-titlebar-end: #a6caf0;
+  --win-blue: #0a246a;
+
+  --background: #d4d0c8;
+  --foreground: #000000;
+  --card: #d4d0c8;
+  --card-foreground: #000000;
+  --popover: #d4d0c8;
+  --popover-foreground: #000000;
+  --primary: #0a246a;
+  --primary-foreground: #ffffff;
+  --secondary: #d4d0c8;
+  --secondary-foreground: #000000;
+  --muted: #c0c0c0;
+  --muted-foreground: #444444;
+  --accent: #316ac5;
+  --accent-foreground: #ffffff;
+  --destructive: #cc0000;
+  --border: #808080;
+  --input: #ffffff;
+  --ring: #316ac5;
+  --chart-1: #316ac5;
+  --chart-2: #008000;
+  --chart-3: #cc6600;
+  --chart-4: #990099;
+  --chart-5: #008080;
+  --sidebar: #d4d0c8;
+  --sidebar-foreground: #000000;
+  --sidebar-primary: #0a246a;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #316ac5;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #808080;
+  --sidebar-ring: #316ac5;
 }
 
+/* Windows 2000 dark mode = high contrast dark */
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --background: #1a1a1a;
+  --foreground: #ffffff;
+  --card: #2a2a2a;
+  --card-foreground: #ffffff;
+  --popover: #2a2a2a;
+  --popover-foreground: #ffffff;
+  --primary: #a6caf0;
+  --primary-foreground: #000000;
+  --secondary: #3a3a3a;
+  --secondary-foreground: #ffffff;
+  --muted: #3a3a3a;
+  --muted-foreground: #aaaaaa;
+  --accent: #316ac5;
+  --accent-foreground: #ffffff;
+  --destructive: #ff4444;
+  --border: #555555;
+  --input: #3a3a3a;
+  --ring: #316ac5;
+  --chart-1: #5b9bd5;
+  --chart-2: #70ad47;
+  --chart-3: #ffc000;
+  --chart-4: #ae48a8;
+  --chart-5: #4bacc6;
+  --sidebar: #2a2a2a;
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #a6caf0;
+  --sidebar-primary-foreground: #000000;
+  --sidebar-accent: #3a5a9a;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #555555;
+  --sidebar-ring: #316ac5;
+  --win-silver: #3a3a3a;
+  --win-silver-light: #4a4a4a;
+  --win-silver-dark: #222222;
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
+    box-sizing: border-box;
   }
   body {
-    @apply bg-background text-foreground antialiased;
+    @apply bg-background text-foreground;
+    font-family: "Tahoma", "MS Sans Serif", "Arial", sans-serif;
+    font-size: 11px;
   }
+}
+
+/* =====================================================
+   WINDOWS 2000 CLASSIC UI PRIMITIVES
+   ===================================================== */
+
+/* Raised 3D button border (classic Win2K) */
+.win-raised {
+  border-style: solid;
+  border-width: 2px;
+  border-color: #ffffff #808080 #808080 #ffffff;
+  box-shadow: inset -1px -1px 0 #404040, inset 1px 1px 0 #dfdfdf;
+}
+
+/* Sunken / inset 3D border */
+.win-sunken {
+  border-style: solid;
+  border-width: 2px;
+  border-color: #808080 #dfdfdf #dfdfdf #808080;
+  box-shadow: inset 1px 1px 0 #404040, inset -1px -1px 0 #ffffff;
+}
+
+/* Pressed button state */
+.win-pressed {
+  border-style: solid;
+  border-width: 2px;
+  border-color: #808080 #ffffff #ffffff #808080;
+  box-shadow: inset 1px 1px 0 #404040;
+}
+
+/* Flat border groupbox */
+.win-groupbox {
+  border: 2px solid;
+  border-color: #808080 #ffffff #ffffff #808080;
+  padding: 12px;
+  position: relative;
+}
+
+/* Title bar gradient (Windows 2000 classic blue) */
+.win-titlebar {
+  background: linear-gradient(to right, #0a246a, #a6caf0);
+  color: #ffffff;
+  font-weight: bold;
+  font-size: 11px;
+  padding: 3px 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  user-select: none;
+}
+
+.dark .win-titlebar {
+  background: linear-gradient(to right, #1a1a5a, #4a6aaa);
+}
+
+/* Classic window chrome button (×, ─, □) */
+.win-chrome-btn {
+  width: 16px;
+  height: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  line-height: 1;
+  background: #d4d0c8;
+  border-style: solid;
+  border-width: 2px;
+  border-color: #ffffff #808080 #808080 #ffffff;
+  box-shadow: inset -1px -1px 0 #404040, inset 1px 1px 0 #dfdfdf;
+  cursor: pointer;
+  color: #000000;
+  font-family: "Marlett", "Wingdings", monospace;
+}
+
+.dark .win-chrome-btn {
+  background: #3a3a3a;
+  color: #ffffff;
+}
+
+.win-chrome-btn:active {
+  border-color: #808080 #ffffff #ffffff #808080;
+  box-shadow: inset 1px 1px 0 #404040;
+}
+
+/* Win2K button */
+.win-btn {
+  background: #d4d0c8;
+  color: #000000;
+  font-family: "Tahoma", "MS Sans Serif", "Arial", sans-serif;
+  font-size: 11px;
+  padding: 3px 12px;
+  border-style: solid;
+  border-width: 2px;
+  border-color: #ffffff #808080 #808080 #ffffff;
+  box-shadow: inset -1px -1px 0 #404040, inset 1px 1px 0 #dfdfdf;
+  cursor: pointer;
+  min-width: 72px;
+  text-align: center;
+}
+
+.dark .win-btn {
+  background: #3a3a3a;
+  color: #ffffff;
+  border-color: #666666 #1a1a1a #1a1a1a #666666;
+  box-shadow: inset -1px -1px 0 #111111, inset 1px 1px 0 #555555;
+}
+
+.win-btn:hover {
+  background: #e4e0d8;
+}
+
+.win-btn:active, .win-btn.active {
+  border-color: #808080 #ffffff #ffffff #808080;
+  box-shadow: inset 1px 1px 0 #404040;
+  padding: 4px 11px 2px 13px;
+}
+
+/* Win2K panel (recessed content area) */
+.win-panel {
+  background: #d4d0c8;
+  border-style: solid;
+  border-width: 2px;
+  border-color: #808080 #ffffff #ffffff #808080;
+  box-shadow: inset 1px 1px 0 #404040, inset -1px -1px 0 #dfdfdf;
+}
+
+.dark .win-panel {
+  background: #2a2a2a;
+  border-color: #555555 #111111 #111111 #555555;
+}
+
+/* Win2K inset field (text input, list box) */
+.win-field {
+  background: #ffffff;
+  border-style: solid;
+  border-width: 2px;
+  border-color: #808080 #dfdfdf #dfdfdf #808080;
+  box-shadow: inset 1px 1px 0 #404040;
+  padding: 2px 4px;
+}
+
+.dark .win-field {
+  background: #1a1a1a;
+  color: #ffffff;
+  border-color: #555555 #333333 #333333 #555555;
+}
+
+/* Status bar */
+.win-statusbar {
+  background: #d4d0c8;
+  border-top: 2px solid #808080;
+  display: flex;
+  align-items: center;
+  padding: 2px 4px;
+  font-size: 11px;
+  gap: 4px;
+}
+
+.win-statusbar-panel {
+  border-style: solid;
+  border-width: 1px;
+  border-color: #808080 #ffffff #ffffff #808080;
+  padding: 1px 6px;
+  flex: 1;
+  font-size: 11px;
+}
+
+/* Nav item selected highlight */
+.win-nav-selected {
+  background: #0a246a;
+  color: #ffffff;
+}
+
+/* Toolbar */
+.win-toolbar {
+  background: #d4d0c8;
+  border-bottom: 2px solid #808080;
+  display: flex;
+  align-items: center;
+  padding: 2px 4px;
+  gap: 2px;
+}
+
+.dark .win-toolbar {
+  background: #2a2a2a;
+  border-bottom-color: #555555;
+}
+
+/* Toolbar separator */
+.win-toolbar-sep {
+  width: 1px;
+  height: 20px;
+  background: #808080;
+  margin: 0 3px;
+  box-shadow: 1px 0 0 #ffffff;
+}
+
+/* Menu bar */
+.win-menubar {
+  background: #d4d0c8;
+  display: flex;
+  align-items: center;
+  padding: 1px 2px;
+  font-size: 11px;
+}
+
+.dark .win-menubar {
+  background: #2a2a2a;
+}
+
+.win-menubar-item {
+  padding: 2px 6px;
+  cursor: default;
+}
+
+.win-menubar-item:hover {
+  background: #0a246a;
+  color: #ffffff;
+}
+
+/* Scrollbar styling (best effort) */
+::-webkit-scrollbar {
+  width: 16px;
+  height: 16px;
+}
+
+::-webkit-scrollbar-track {
+  background: #d4d0c8;
+  border: 1px solid #808080;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d4d0c8;
+  border-style: solid;
+  border-width: 2px;
+  border-color: #ffffff #808080 #808080 #ffffff;
+  box-shadow: inset -1px -1px 0 #404040, inset 1px 1px 0 #dfdfdf;
+}
+
+::-webkit-scrollbar-button {
+  background: #d4d0c8;
+  border-style: solid;
+  border-width: 2px;
+  border-color: #ffffff #808080 #808080 #ffffff;
+  box-shadow: inset -1px -1px 0 #404040, inset 1px 1px 0 #dfdfdf;
+  display: block;
+  height: 16px;
+}
+
+/* Recharts overrides for Win2K */
+.recharts-cartesian-grid-horizontal line,
+.recharts-cartesian-grid-vertical line {
+  stroke: #c0c0c0;
+  stroke-dasharray: none;
+}
+
+.recharts-tooltip-wrapper .recharts-default-tooltip {
+  background: #d4d0c8 !important;
+  border: 2px solid !important;
+  border-color: #ffffff #808080 #808080 #ffffff !important;
+  box-shadow: inset -1px -1px 0 #404040, inset 1px 1px 0 #dfdfdf !important;
+  border-radius: 0 !important;
+  font-family: "Tahoma", sans-serif !important;
+  font-size: 11px !important;
 }

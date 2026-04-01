@@ -1,7 +1,6 @@
 import { NavLink } from "react-router-dom"
 import { LayoutDashboard, ListOrdered, Lightbulb, Wallet } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { Separator } from "@/components/ui/separator"
 
 const links = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -16,18 +15,23 @@ type Props = {
 
 export function SidebarNav({ onNavigate, className }: Props) {
   return (
-    <div className={cn("flex h-full flex-col gap-1 p-4", className)}>
-      <div className="mb-4 flex items-center gap-2 px-2">
-        <div className="flex size-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-          <Wallet className="size-5" />
-        </div>
-        <div>
-          <p className="text-sm font-semibold leading-tight">Finance Dashboard</p>
-          <p className="text-xs text-muted-foreground">Overview & insights</p>
-        </div>
+    <div className={cn("flex h-full flex-col", className)}>
+      {/* App title bar */}
+      <div className="win-titlebar gap-1.5">
+        <Wallet size={12} className="shrink-0" />
+        <span className="text-[11px] font-bold truncate">Finance Dashboard</span>
       </div>
-      <Separator className="mb-2 opacity-60" />
-      <nav className="flex flex-1 flex-col gap-0.5">
+
+      {/* Nav section label */}
+      <div
+        className="px-2 py-1 text-[10px] uppercase tracking-widest text-muted-foreground"
+        style={{ background: "#c0c0c0", borderBottom: "1px solid #808080" }}
+      >
+        Navigation
+      </div>
+
+      {/* Nav links */}
+      <nav className="flex flex-col gap-0 flex-1 py-1">
         {links.map(({ to, label, icon: Icon }) => (
           <NavLink
             key={to}
@@ -35,18 +39,29 @@ export function SidebarNav({ onNavigate, className }: Props) {
             onClick={onNavigate}
             className={({ isActive }) =>
               cn(
-                "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                "flex items-center gap-2 px-3 py-1.5 text-[11px] cursor-default transition-none",
                 isActive
-                  ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                  : "text-sidebar-foreground/80 hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground",
+                  ? "win-nav-selected"
+                  : "text-foreground hover:bg-[#0a246a] hover:text-white",
               )
             }
           >
-            <Icon className="size-4 shrink-0 opacity-80" />
-            {label}
+            {({ isActive }) => (
+              <>
+                <Icon size={14} className={cn("shrink-0", isActive ? "text-white" : "")} />
+                <span>{label}</span>
+              </>
+            )}
           </NavLink>
         ))}
       </nav>
+
+      {/* Bottom info panel */}
+      <div className="win-sunken m-2 p-2 text-[10px] text-muted-foreground">
+        <p className="font-bold text-foreground">Finance Dashboard</p>
+        <p>Overview &amp; Insights</p>
+        <p className="mt-1 text-[10px]">© 2000 v0.dev</p>
+      </div>
     </div>
   )
 }

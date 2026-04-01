@@ -8,8 +8,6 @@ import {
   YAxis,
 } from "recharts"
 import type { BalancePoint } from "@/lib/metrics"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Skeleton } from "@/components/ui/skeleton"
 
 type Props = {
   data: BalancePoint[]
@@ -28,18 +26,40 @@ const formatMoney = (n: number) =>
     maximumFractionDigits: 0,
   }).format(n)
 
+function Win2KWindow({
+  title,
+  children,
+}: {
+  title: string
+  children: React.ReactNode
+}) {
+  return (
+    <div className="win-raised bg-card flex flex-col">
+      <div className="win-titlebar gap-1.5">
+        <span className="text-[11px] font-bold flex-1">{title}</span>
+        <span className="win-chrome-btn">_</span>
+        <span className="win-chrome-btn">□</span>
+        <span className="win-chrome-btn">×</span>
+      </div>
+      {/* Menu bar */}
+      <div className="win-menubar text-[11px] border-b border-[#808080]">
+        <span className="win-menubar-item">File</span>
+        <span className="win-menubar-item">View</span>
+        <span className="win-menubar-item">Help</span>
+      </div>
+      {children}
+    </div>
+  )
+}
+
 export function BalanceLineChart({ data, loading }: Props) {
   if (loading) {
     return (
-      <Card>
-        <CardHeader>
-          <Skeleton className="h-5 w-48" />
-          <Skeleton className="h-4 w-64" />
-        </CardHeader>
-        <CardContent>
-          <Skeleton className="h-[280px] w-full" />
-        </CardContent>
-      </Card>
+      <Win2KWindow title="Balance Over Time">
+        <div className="win-sunken m-2 p-2 flex items-center justify-center" style={{ height: 300 }}>
+          <div className="text-[11px] text-muted-foreground">Loading chart data...</div>
+        </div>
+      </Win2KWindow>
     )
   }
 
@@ -50,70 +70,71 @@ export function BalanceLineChart({ data, loading }: Props) {
 
   if (chartData.length === 0) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Balance over time</CardTitle>
-          <CardDescription>Add transactions to see your running balance.</CardDescription>
-        </CardHeader>
-        <CardContent className="flex h-[280px] items-center justify-center text-sm text-muted-foreground">
-          No data yet
-        </CardContent>
-      </Card>
+      <Win2KWindow title="Balance Over Time">
+        <div className="win-sunken m-2 p-2 flex items-center justify-center" style={{ height: 300 }}>
+          <div className="text-[11px] text-muted-foreground">
+            No data yet. Add transactions to see your running balance.
+          </div>
+        </div>
+      </Win2KWindow>
     )
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Balance over time</CardTitle>
-        <CardDescription>Cumulative balance by day from your history.</CardDescription>
-      </CardHeader>
-      <CardContent className="h-[300px] pt-2">
+    <Win2KWindow title="Balance Over Time - Line Chart">
+      <div className="win-sunken m-2 p-1" style={{ height: 300 }}>
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={chartData} margin={{ left: 4, right: 8, top: 8 }}>
-            <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+          <LineChart data={chartData} margin={{ left: 4, right: 8, top: 8, bottom: 4 }}>
+            <CartesianGrid
+              strokeDasharray="1 0"
+              stroke="#c0c0c0"
+              strokeOpacity={0.8}
+            />
             <XAxis
               dataKey="label"
-              tick={{ fontSize: 11 }}
-              tickLine={false}
-              axisLine={false}
+              tick={{ fontSize: 10, fontFamily: "Tahoma, Arial, sans-serif", fill: "#000000" }}
+              tickLine={{ stroke: "#808080" }}
+              axisLine={{ stroke: "#808080" }}
             />
             <YAxis
-              tick={{ fontSize: 11 }}
-              tickLine={false}
-              axisLine={false}
+              tick={{ fontSize: 10, fontFamily: "Tahoma, Arial, sans-serif", fill: "#000000" }}
+              tickLine={{ stroke: "#808080" }}
+              axisLine={{ stroke: "#808080" }}
               tickFormatter={(v) => `$${v}`}
             />
             <Tooltip
-              formatter={(value) => [
-                formatMoney(Number(value)),
-                "Balance",
-              ]}
+              formatter={(value) => [formatMoney(Number(value)), "Balance"]}
               labelFormatter={(_, payload) =>
                 payload[0]?.payload?.date
-                  ? new Date(
-                      String(payload[0].payload.date),
-                    ).toLocaleDateString()
+                  ? new Date(String(payload[0].payload.date)).toLocaleDateString()
                   : ""
               }
               contentStyle={{
-                borderRadius: "8px",
-                border: "1px solid var(--border)",
-                background: "var(--popover)",
-                color: "var(--popover-foreground)",
+                borderRadius: 0,
+                border: "2px solid",
+                borderColor: "#ffffff #808080 #808080 #ffffff",
+                background: "#d4d0c8",
+                color: "#000000",
+                fontFamily: "Tahoma, Arial, sans-serif",
+                fontSize: 11,
+                boxShadow: "inset -1px -1px 0 #404040, inset 1px 1px 0 #dfdfdf",
               }}
             />
             <Line
-              type="monotone"
+              type="linear"
               dataKey="balance"
-              stroke="hsl(var(--primary))"
-              strokeWidth={2}
-              dot={false}
-              activeDot={{ r: 4 }}
+              stroke="#316ac5"
+              strokeWidth={1.5}
+              dot={{ r: 2, fill: "#316ac5", stroke: "#316ac5" }}
+              activeDot={{ r: 4, fill: "#0a246a" }}
             />
           </LineChart>
         </ResponsiveContainer>
-      </CardContent>
-    </Card>
+      </div>
+      {/* Status strip */}
+      <div className="win-statusbar mx-2 mb-2 text-[10px]">
+        <div className="win-statusbar-panel">Cumulative balance by day</div>
+      </div>
+    </Win2KWindow>
   )
 }
