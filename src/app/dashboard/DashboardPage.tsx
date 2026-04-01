@@ -35,7 +35,7 @@ export function DashboardPage() {
       transition={{ duration: 0.2 }}
     >
       <SummaryCards summary={summary} loading={loading} />
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid min-w-0 gap-6 lg:grid-cols-2 *:min-w-0">
         <BalanceLineChart data={lineData} loading={loading} />
         <SpendingPieChart data={pieData} loading={loading} />
       </div>

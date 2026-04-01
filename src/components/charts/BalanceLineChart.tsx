@@ -68,18 +68,26 @@ export function BalanceLineChart({ data, loading }: Props) {
         <CardTitle>Balance over time</CardTitle>
         <CardDescription>Cumulative balance by day from your history.</CardDescription>
       </CardHeader>
-      <CardContent className="h-[300px] pt-2">
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={chartData} margin={{ left: 4, right: 8, top: 8 }}>
-            <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+      <CardContent className="pt-2">
+        {/*
+          Recharts ResponsiveContainer needs a parent with explicit pixel height.
+          In CSS grid, height: 100% often collapses; min-w-0 avoids overflow clipping.
+        */}
+        <div className="h-[280px] w-full min-h-[280px] min-w-0">
+          <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={chartData} margin={{ left: 8, right: 12, top: 8, bottom: 4 }}>
+            <CartesianGrid
+              strokeDasharray="3 3"
+              stroke="var(--border)"
+            />
             <XAxis
               dataKey="label"
-              tick={{ fontSize: 11 }}
+              tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
               tickLine={false}
-              axisLine={false}
+              axisLine={{ stroke: "var(--border)" }}
             />
             <YAxis
-              tick={{ fontSize: 11 }}
+              tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
               tickLine={false}
               axisLine={false}
               tickFormatter={(v) => `$${v}`}
@@ -106,13 +114,14 @@ export function BalanceLineChart({ data, loading }: Props) {
             <Line
               type="monotone"
               dataKey="balance"
-              stroke="hsl(var(--primary))"
+              stroke="var(--primary)"
               strokeWidth={2}
               dot={false}
-              activeDot={{ r: 4 }}
+              activeDot={{ r: 4, fill: "var(--primary)" }}
             />
           </LineChart>
         </ResponsiveContainer>
+        </div>
       </CardContent>
     </Card>
   )
