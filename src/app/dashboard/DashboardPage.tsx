@@ -5,10 +5,16 @@ import { BalanceLineChart } from "@/components/charts/BalanceLineChart"
 import { SpendingPieChart } from "@/components/charts/SpendingPieChart"
 import { DateRangeChips } from "@/components/dashboard/DateRangeChips"
 import { DashboardEmptyState } from "@/components/dashboard/DashboardEmptyState"
-import { filterTransactionsByRange } from "@/lib/dashboardFilter"
+import { SavingsAndFlowCards } from "@/components/cards/SavingsAndFlowCards"
+import {
+  filterTransactionsByPreviousRange,
+  filterTransactionsByRange,
+} from "@/lib/dashboardFilter"
 import {
   balanceOverTime,
   computeSummary,
+  netCashFlow,
+  savingsRatePercent,
   spendingByCategory,
 } from "@/lib/metrics"
 import {
@@ -32,7 +38,35 @@ export function DashboardPage() {
     [transactions, range],
   )
 
+  const previousFiltered = useMemo(
+    () => filterTransactionsByPreviousRange(transactions, range),
+    [transactions, range],
+  )
+
   const summary = useMemo(() => computeSummary(filtered), [filtered])
+  const prevSummary = useMemo(
+    () => computeSummary(previousFiltered),
+    [previousFiltered],
+  )
+
+  const savingsPct = useMemo(
+    () => savingsRatePercent(summary.totalIncome, summary.totalExpenses),
+    [summary.totalIncome, summary.totalExpenses],
+  )
+  const savingsPctPrev = useMemo(
+    () => savingsRatePercent(prevSummary.totalIncome, prevSummary.totalExpenses),
+    [prevSummary.totalIncome, prevSummary.totalExpenses],
+  )
+  const savingsDelta = useMemo(() => {
+    if (range === "all") return null
+    if (savingsPct === null || savingsPctPrev === null) return null
+    return Math.round((savingsPct - savingsPctPrev) * 10) / 10
+  }, [range, savingsPct, savingsPctPrev])
+
+  const flow = useMemo(
+    () => netCashFlow(summary.totalIncome, summary.totalExpenses),
+    [summary.totalIncome, summary.totalExpenses],
+  )
   const lineData = useMemo(() => balanceOverTime(filtered), [filtered])
   const pieData = useMemo(
     () => spendingByCategory(filtered),
@@ -71,6 +105,16 @@ export function DashboardPage() {
             sparkBalance={sparkBalance}
             sparkIncome={sparkIncome}
             sparkExpense={sparkExpense}
+            loading={loading}
+            reducedMotion={reducedMotion}
+          />
+          <SavingsAndFlowCards
+            range={range}
+            savingsRatePct={savingsPct}
+            savingsRatePrevPct={savingsPctPrev}
+            savingsDeltaPctPoints={savingsDelta}
+            canComparePeriod={range !== "all"}
+            netCashFlow={flow}
             loading={loading}
             reducedMotion={reducedMotion}
           />

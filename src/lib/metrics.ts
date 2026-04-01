@@ -20,6 +20,17 @@ export function computeSummary(transactions: Transaction[]): Summary {
   }
 }
 
+/** (Income − expenses) / income, as 0–100. Null if no income. */
+export function savingsRatePercent(totalIncome: number, totalExpenses: number): number | null {
+  if (totalIncome <= 0) return null
+  const savings = totalIncome - totalExpenses
+  return Math.round((savings / totalIncome) * 1000) / 10
+}
+
+export function netCashFlow(totalIncome: number, totalExpenses: number): number {
+  return totalIncome - totalExpenses
+}
+
 export interface BalancePoint {
   date: string
   balance: number

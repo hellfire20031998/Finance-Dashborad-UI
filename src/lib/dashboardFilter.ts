@@ -10,12 +10,16 @@ export const DASHBOARD_RANGE_LABELS: Record<DashboardRange, string> = {
   all: "All time",
 }
 
-export function filterTransactionsByRange(
-  transactions: Transaction[],
+/** Inclusive transaction timestamp filter (date at noon). */
+function txTime(t: Transaction) {
+  return new Date(t.date + "T12:00:00").getTime()
+}
+
+export function getDashboardRangeBounds(
   range: DashboardRange,
   now = new Date(),
-): Transaction[] {
-  if (range === "all") return transactions
+): { startMs: number; endMs: number } | null {
+  if (range === "all") return null
   const end = new Date(now)
   end.setHours(23, 59, 59, 999)
   const endMs = end.getTime()
@@ -23,9 +27,55 @@ export function filterTransactionsByRange(
   if (range === "7d") startMs = endMs - 7 * 86_400_000
   else if (range === "30d") startMs = endMs - 30 * 86_400_000
   else if (range === "90d") startMs = endMs - 90 * 86_400_000
-  else startMs = new Date(now.getFullYear(), 0, 1).getTime()
+  else startMs = new Date(now.getFullYear(), 0, 1).setHours(0, 0, 0, 0)
+  return { startMs, endMs }
+}
+
+export function filterTransactionsByRange(
+  transactions: Transaction[],
+  range: DashboardRange,
+  now = new Date(),
+): Transaction[] {
+  if (range === "all") return transactions
+  const b = getDashboardRangeBounds(range, now)
+  if (!b) return transactions
+  const { startMs, endMs } = b
   return transactions.filter((t) => {
-    const ts = new Date(t.date + "T12:00:00").getTime()
+    const ts = txTime(t)
     return ts >= startMs && ts <= endMs
+  })
+}
+
+/** Same-length window immediately before the current dashboard range (for comparisons). */
+export function filterTransactionsByPreviousRange(
+  transactions: Transaction[],
+  range: DashboardRange,
+  now = new Date(),
+): Transaction[] {
+  if (range === "all") return []
+
+  if (range === "ytd") {
+    const y = now.getFullYear()
+    const startPrev = new Date(y - 1, 0, 1)
+    startPrev.setHours(0, 0, 0, 0)
+    const endPrev = new Date(y - 1, now.getMonth(), now.getDate())
+    endPrev.setHours(23, 59, 59, 999)
+    const a = startPrev.getTime()
+    const b = endPrev.getTime()
+    return transactions.filter((t) => {
+      const ts = txTime(t)
+      return ts >= a && ts <= b
+    })
+  }
+
+  const cur = getDashboardRangeBounds(range, now)
+  if (!cur) return []
+  const { startMs, endMs } = cur
+  const duration = endMs - startMs
+  const prevEndMs = startMs - 1
+  const prevStartMs = startMs - duration
+  return transactions.filter((t) => {
+    const ts = txTime(t)
+    return ts >= prevStartMs && ts <= prevEndMs
   })
 }
