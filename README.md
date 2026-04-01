@@ -1,99 +1,35 @@
 # Finance Dashboard
 
-A single-page finance dashboard for viewing income and expenses: summaries, charts, a transactions workspace, and lightweight insights. Built as a **frontend-only** demo with **local persistence** (no backend API).
+Frontend-only finance UI: summaries, Recharts, transactions workspace, insights. **Data:** `localStorage` (mock seed in `src/lib/data.ts`), simulated delay in `src/lib/api.ts`. **Stack:** React 19, TypeScript, Vite, Tailwind v4, shadcn/ui, React Router, Zustand, Framer Motion, Sonner.
 
-## Stack
-
-- **React 19** + **TypeScript**
-- **Vite** (build + dev server)
-- **Tailwind CSS v4** + **shadcn/ui** (Radix primitives)
-- **React Router** (client-side routes)
-- **Zustand** (state)
-- **Recharts** (charts)
-- **Framer Motion** (subtle page motion, respects reduced motion)
-- **Sonner** (toasts)
-
-## Prerequisites
-
-- Node.js 18+ (or 20+ recommended)
-- npm
-
-## Setup & scripts
+## Setup
 
 ```bash
-npm install
-npm run dev      # http://localhost:5173 (default Vite port)
-npm run build    # TypeScript check + production bundle → dist/
-npm run preview  # Serve dist/ locally
-npm run lint     # ESLint
+npm install && npm run dev   # http://localhost:5173
+npm run build                # tsc + Vite → dist/
+npm run lint
+npm run preview              # optional: serve dist/
 ```
 
-No `.env` file is required: there are no API keys or remote services.
+No `.env` required.
 
-## How data works
+## RBAC (demo only)
 
-1. On first load, the app reads **`localStorage`** key `finance-dashboard-transactions`.
-2. If nothing is stored, it **seeds** from mock data in `src/lib/data.ts` and saves it.
-3. `fetchTransactions` / `syncPersist` in `src/lib/api.ts` **simulate network delay** (milliseconds) before resolving; all reads and writes still go through **localStorage**.
+**Viewer / Admin** in the top bar → `finance-dashboard-role` in `localStorage`. Controls add/edit on Transactions only; **not** authentication or server enforcement.
 
-Transactions are plain objects: `id`, `date`, `amount`, `category`, `type` (`income` | `expense`).
+## Layout
 
-## Roles (RBAC) — important
+`src/app/` pages · `src/components/` UI · `src/lib/` metrics, filters, CSV, API shim · `src/store/` finance + persisted UI (sidebar, range, table prefs, accent) · `src/hooks/`
 
-- **Viewer** and **Admin** are selected in the top bar and stored under **`finance-dashboard-role`** in `localStorage`.
-- This is **UI-level behavior only**: hide add/edit on transactions for viewers, show them for admins. There is **no authentication**, **no server**, and **no enforcement** against someone changing role or storage in the browser.
-- Suitable for demonstrating role-based **layouts and actions** in a portfolio or assignment; not a security model for production.
+## Features
 
-## Project structure
+- **Dashboard:** date range, summary + sparklines, savings / cash flow, balance line, category pie + horizontal bars, empty state.
+- **Transactions:** category search, type filter, sort, pagination, column toggles, density, CSV (filtered). Admin: add + edit (row / Enter / double-click). Viewer: read-only.
+- **Insights:** top expense category, month vs month, rolling 30-day trend.
+- **Shell:** responsive sidebar / mobile drawer, breadcrumbs, theme + accents, toasts.
 
-| Path | Purpose |
-|------|--------|
-| `src/app/` | Route-level pages (`dashboard`, `transactions`, `insights`) |
-| `src/components/` | Layout, cards, charts, table, dashboard widgets, UI primitives |
-| `src/lib/` | Metrics, filters, CSV export, mock data, simulated API |
-| `src/store/` | `useFinanceStore` (transactions, role, table filters/sort), `useUIStore` (persisted UI: sidebar, date range, table options, accent) |
-| `src/hooks/` | e.g. `useReducedMotion` |
+## Deploy
 
-## Features by area
+Static SPA. `vercel.json` rewrites to `index.html`. Build output: **`dist/`**.
 
-### Dashboard (`/dashboard`)
-
-- Date range chips (filters charts and summary metrics).
-- Summary cards with sparklines, savings rate and net cash flow (with prior-period comparison when range allows).
-- Balance over time (line chart), spending by category (pie), horizontal category bar section.
-- Empty state when there are no transactions (copy differs slightly for admin vs viewer).
-
-### Transactions (`/transactions`)
-
-- Search (by **category** substring), filter by type, sort by date or amount.
-- Pagination with configurable page size (persisted).
-- Optional columns (category, type), comfortable/compact density.
-- CSV export of the **current filtered** list.
-- **Admin:** add transaction dialog; edit via row control, **Enter** on focused row, or double-click.
-- **Viewer:** read-only table (no add/edit).
-
-### Insights (`/insights`)
-
-- Highest spending category (expenses).
-- Current calendar month vs previous month (expenses), with tone and trend hints.
-- Rolling 30-day vs prior 30-day expense message (handles little or no history).
-
-### Global UX
-
-- Sidebar navigation (collapsible on desktop); slide-out menu on small screens.
-- Breadcrumbs; filter state reflected in crumbs on Transactions.
-- Light / dark theme and accent presets (default, emerald, blue).
-- Toasts for actions like mobile “reload from storage” (`MobileRefreshHint`).
-
-## Deployment (e.g. Vercel)
-
-This is a static SPA. `vercel.json` rewrites all routes to `index.html` so refreshes on `/transactions` or `/insights` do not 404.
-
-```bash
-npm run build
-# Deploy the `dist/` output (or connect the repo and set build command to npm run build, output dist)
-```
-
-## Repository
-
-[Finance-Dashborad-UI](https://github.com/hellfire20031998/Finance-Dashborad-UI) on GitHub.
+**Repo:** [Finance-Dashborad-UI](https://github.com/hellfire20031998/Finance-Dashborad-UI)
