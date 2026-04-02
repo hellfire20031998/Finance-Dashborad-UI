@@ -30,6 +30,11 @@ No `.env` required.
 - **Insights:** top expense category, month vs month, rolling 30-day trend.
 - **Shell:** responsive sidebar / mobile drawer, breadcrumbs, theme + accents, toasts.
 
+## Notes
+
+- **localStorage keys:** `finance-dashboard-transactions` (data), `finance-dashboard-role` (viewer/admin), and `finance-dashboard-ui` (Zustand-persisted UI: sidebar, date range, table density/columns/page size, accent).
+- **Storage issues:** Unreadable or invalid saved transactions trigger a warning and fall back to a fresh seed; failed saves (quota, private mode, etc.) show an error toast while the app keeps the current in-memory list until you refresh.
+
 ## Deploy
 
 Static SPA. `vercel.json` rewrites to `index.html`. Build output: **`dist/`**.
